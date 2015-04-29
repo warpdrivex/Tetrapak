@@ -1,0 +1,87 @@
+# control the position of a ball using the arrow keys
+
+import simplegui
+import math
+
+# Initialize globals
+WIDTH = 600
+HEIGHT = 400
+BALL_RADIUS = 30
+ball_pos = [100, 50]
+eye1 = [-10,-5]
+eye2 = [10,-5]
+eye1_pos=[-10,-5]
+eye2_pos=[10,5]
+EYE_RADIUS = 6
+velocity = [2,-3]
+gravity = [0,-0.2]
+friction = 0.9
+
+# event handlers  
+def keydown(key):
+    if key == simplegui.KEY_MAP['down']:
+        velocity[1] = velocity[1] + 10
+    elif key == simplegui.KEY_MAP['up']:
+        velocity[1] = velocity[1] - 10
+    elif key == simplegui.KEY_MAP['right']:
+        velocity[0] = velocity[0] + 10
+    elif key == simplegui.KEY_MAP['left']:
+        velocity[0] = velocity[0] - 10
+
+# define event handlers
+def draw(canvas):
+    canvas.draw_circle(ball_pos, BALL_RADIUS, 2, "Blue", "Yellow")
+    canvas.draw_circle(eye1_pos, EYE_RADIUS, 2, "Black", "White")
+    canvas.draw_circle(eye2_pos, EYE_RADIUS, 2, "Black", "White")
+    
+    #kinematics
+    #update velocity
+    velocity[0] = velocity[0] + gravity[0]
+    velocity[1] = velocity[1] + gravity[1]
+    #update position
+    ball_pos[0] = ball_pos[0] + velocity[0]
+    ball_pos[1] = ball_pos[1] + velocity[1]
+
+    eye1_pos[0]=ball_pos[0]+eye1[0]+velocity[0]
+    eye1_pos[1]=ball_pos[1]+eye1[1]
+    eye2_pos[0]=ball_pos[0]+eye2[0]+velocity[0]
+    eye2_pos[1]=ball_pos[1]+eye2[1]
+    
+    #boundary conditions 
+    
+    if ball_pos[1] <= BALL_RADIUS:
+        velocity[1] =  math.fabs(friction*velocity[1])
+        velocity[0] = friction*velocity[0]
+        ball_pos[1] = 2*BALL_RADIUS-ball_pos[1]
+
+    if ball_pos[1] >= (HEIGHT-BALL_RADIUS):
+        velocity[1] = -math.fabs(friction*velocity[1])
+        velocity[0] = friction*velocity[0]
+        ball_pos[1] = 2*(HEIGHT-BALL_RADIUS)-ball_pos[1]
+
+        
+    if ball_pos[0] <= BALL_RADIUS:
+        velocity[0] = math.fabs(friction*velocity[0])
+        velocity[1] = friction*velocity[1]
+        ball_pos[1] = 2*BALL_RADIUS-ball_pos[0]
+        
+    if ball_pos[0] >= (WIDTH - BALL_RADIUS):
+        velocity[0] = -math.fabs(friction*velocity[0])
+        velocity[1] = friction*velocity[1]
+        ball_pos[1] = 2*(WIDTH - BALL_RADIUS)-ball_pos[0]
+
+        
+    #stop
+    if abs(velocity[1])== abs(velocity[0]):
+        ball_pos[0] == BALL_RADIUS and ball_pos[1] == BALL_RADIUS
+      
+    
+# create frame 
+frame = simplegui.create_frame("Physics simulation", WIDTH, HEIGHT)
+
+# register event handlers
+frame.set_keydown_handler(keydown)
+frame.set_draw_handler(draw)
+
+# start frame
+frame.start()
